@@ -1,5 +1,42 @@
 #include <iostream>
 
+class Lektor{
+    private:
+        int timeLate;
+        int timeGrading;//minuti za ocenqvane na edna rabota
+        Student* currentlyGrading;
+        int timeUsed;//izminalo vreme
+
+    public:
+        ~Lektor(){
+            delete [] currentlyGrading;
+        }
+        Lektor():timeLate(0), timeGrading(5){}//good lektor
+        Lektor(int L, int C): timeLate(L), timeGrading(C){}
+
+        const int getTimeUsed() const{
+            return timeUsed;
+        }
+        void addToTimeUsed(){
+            timeUsed++;
+        }
+        const int getTimeGrading() const{
+            return timeGrading;
+        }
+
+        const Student getStudent() const{
+            return currentlyGrading;
+        }
+        void removeStudent(){
+            delete currentlyGrading;
+            currentlyGrading=nullptr;
+            timeUsed=0;
+        }
+        void setStudent(const Student& newCurr){
+            currentlyGrading=newCurr;
+        }
+};
+
 
 
 class Student{
@@ -10,6 +47,9 @@ class Student{
         int course=2;
 
     public:
+        ~Student(){
+            delete [] fN;
+        }
         Student(){}
         Student(int t, const char* F, int T, int K):arrivalTime(t),timeTest(T),course(K){
             if(F!=nullptr){
@@ -233,10 +273,12 @@ void printRoomSeatsNulevo(){//eto kak shte se zapulnqt
 class Simulation{
     private:
         Room room;
-        /*std::queue<Student> waiting;
-        int currentTime=8;
-        Seat* seats;
-        Seat* usableSeats;*/
+        Lektor lektor;
+        std::queue<Student> waiting;
+        std::stack<Student> ungraded;//neoceneni raboti, ama ne mi se pravi klas izpit
+        std::stack<Student> graded;//ne sum sigurna dali shte e stek, ama bi trqbvalo lektorut da raboti
+        //sus stekove ot listi raboti
+        int currentTime=480;//480 min=8:00, neka izpitut i ocenqvaneto sa v ramkite na 1 den
 
     public:
         Simulation(){

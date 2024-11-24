@@ -1,5 +1,6 @@
 #include <iostream>
-
+//;)
+int k;
 class Room{
     private:
         int N;

@@ -1,19 +1,61 @@
 #include <iostream>
 
+
+
+class Student{
+    private:
+        int arrivalTime=0;//arrival time after the exam's start
+        char* fN=nullptr;//fakulteten nomer
+        int timeTest=30;//the time needed to finish the test
+        int course=2;
+
+    public:
+        Student(){}
+        Student(int t, const char* F, int T, int K):arrivalTime(t),timeTest(T),course(K){
+            if(F!=nullptr){
+                while (F!=nullptr)
+                {
+                    *fN=*F;
+                    fN++;
+                    F++;
+                }
+            }
+        }
+        void getStudentInfo(){
+            std::cout<<fN<<", "<<course<<" kurs, zakusnqva s "<<arrivalTime<<" min i mu trqbvat "<<timeTest<<" min da reshi izpita.";
+            std::cout<<std::endl;
+        }
+
+
+
+};
+
 class Seat{
     private:
         int index;//za poveche udobstvo
         char type;//Occupied, Free ili Broken, ama shte dobavq i edin da ne se zaema - N
         bool occupied=false;
-        //Student student;//koi student v momenta e zael mqstoto
+        Student* student=nullptr;//koi student v momenta e zael mqstoto
         int timeUsed=0;//kolko vreme dosega e sedql studentut
 
     public:
     Seat(){}
-        Seat(int i, char t, bool oc):index(i), type(t), occupied(oc){}
-        const char getType() const{
-            return type;
+    Seat(int i, char t, bool oc):index(i), type(t), occupied(oc){}
+    void getSeatInfo(){
+        std::cout<<index<<": "<<type<<", "<<occupied<<"\nStudent: ";
+        if(student==nullptr){
+            std::cout<<"none";
+            std::cout<<std::endl;
         }
+        else{
+            (*student).getStudentInfo();
+        }
+
+    }
+    const char getType() const{
+        return type;
+    }
+
 
 };
 class Room{
@@ -22,7 +64,7 @@ class Room{
         int M;
         int countB=0;
         int* B=nullptr;
-        Seat* seats=nullptr;
+        Seat* seats=nullptr;//vsichki mesta za sqdane
     
     public:
         ~Room(){
@@ -100,7 +142,17 @@ class Room{
                     std::cout<<seats[i*M+j].getType()<<" ";
                 }
                 std::cout<<std::endl;
-                
+            }
+
+            for (size_t i = 0; i < N; i++)
+            {
+                for (size_t j = 0; j < M; j++)
+                {
+                    int index=i*M+j;
+                    Seat s=seats[index];
+                    s.getSeatInfo();
+                }
+                std::cout<<std::endl;
             }
         }
 
@@ -131,13 +183,25 @@ void printBrokenIndexes(){
                 for (size_t j = 0; j < M; j++)
                 {
                     int index=i*M+j;
-                    char seat=seats[index].getType();
-                    std::cout << seat << " ";
+                    char sType=seats[index].getType();
+                    std::cout << sType << " ";
                 }
                 std::cout<<std::endl;
             }
-            
         }
+
+        void printRoomsSeatsDetails(){
+             for (size_t i = 0; i < N; i++)
+            {
+                for (size_t j = 0; j < M; j++)
+                {
+                    int index=i*M+j;
+                    Seat s=seats[index];
+                    s.getSeatInfo();
+                }
+                std::cout<<std::endl;
+            }
+}
 
         
 void printRoomSeatsNulevo(){//eto kak shte se zapulnqt
@@ -199,6 +263,7 @@ class Simulation{
 
             this->room=Room(N,M,count,b);
             //this->room.printBrokenIndexes();
+            this->room.printRoomSeats();            
             this->room.printRoomSeatsNulevo();//nulevo, zashtoto shte rabotia s drugite oznachenia,
             // no po tozi nachin shte izglejda napulnena zalata
         }

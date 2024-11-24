@@ -1,6 +1,4 @@
 #include <iostream>
-//;)
-int k;
 class Room{
     private:
         int N;
@@ -9,6 +7,10 @@ class Room{
         int* B;
     
     public:
+        ~Room(){
+            delete [] B;
+        }
+        Room():N(5), M(5),countB(0),B(nullptr){}//default-che za kusmet, oh, poludqvam
         Room(int rows, int cols, int countB, const int* broken): N(rows), M(cols){
             if (broken != nullptr) {
                 delete [] B;
@@ -45,18 +47,18 @@ class Room{
             }
         }
 
-        Room operator=(const Room& other) {
+        Room& operator=(const Room& other) {
             Room copy(other);
             swap(copy);
-
             return *this;
             }
-            void swap(Room& other) {
-    std::swap(N, other.N);
-    std::swap(M, other.M);
-    std::swap(countB, other.countB);
-    std::swap(B, other.B);
-}
+
+        void swap(Room& other) {
+            std::swap(N, other.N);
+            std::swap(M, other.M);
+            std::swap(countB, other.countB);
+            std::swap(B, other.B);
+        }
 
 
         void printBrokenIndexes(){
@@ -67,6 +69,18 @@ class Room{
                 std::cout<<*B<<" ";
                 B++;
             }
+        }
+
+        void printRoomSeats(){
+            for (size_t i = 0; i < N; i++)
+            {
+                for (size_t j = 0; j < M; j++)
+                {
+                    std::cout<<(j+i*j-1)<<" ";
+                }
+                std::cout<<std::endl;
+            }
+            
         }
 };
 
@@ -94,14 +108,15 @@ class Simulation{
             std::cin>>N>>M>>L>>C;
 
             std::cout<<"Please enter the broken seats' count: ";
-            std::cin>>count>>M>>L>>C;
+            std::cin>>count;
             int b[count];
 
+            for (size_t i = 0; i < count; i++)
+            {
+                std::cin>>b[i];
+            }
 
-
-
-            this->room=new Room(N,M,b);
-
+            this->room=Room(N,M,count,b);
         }
 
 

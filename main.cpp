@@ -1,30 +1,44 @@
 #include <iostream>
+
+class Seat{
+    private:
+        int index;//za poveche udobstvo
+        char type;//Occupied, Free ili Broken, ama shte dobavq i edin da ne se zaema - N
+        bool occupied=false;
+        //Student student;//koi student v momenta e zael mqstoto
+        int timeUsed=0;//kolko vreme dosega e sedql studentut
+
+    public:
+    Seat(){}
+        Seat(int i, char t, bool oc):index(i), type(t), occupied(oc){}
+        const char getType() const{
+            return type;
+        }
+
+};
 class Room{
     private:
         int N;
         int M;
-        int countB;
-        int* B;
+        int countB=0;
+        int* B=nullptr;
+        Seat* seats=nullptr;
     
     public:
         ~Room(){
-            delete [] B;
-        }
-        Room():N(5), M(5),countB(0),B(nullptr){}//default-che za kusmet, oh, poludqvam
-        Room(int rows, int cols, int countB, const int* broken): N(rows), M(cols){
-            if (broken != nullptr) {
+            if (B != nullptr) {
                 delete [] B;
+        }
+        }
+        Room():N(5), M(5),countB(0){}//default-che za kusmet, oh, poludqvam
+        Room(int rows, int cols, int countB, const int* broken): N(rows), M(cols),countB(countB){
+             if (broken != nullptr && countB!=0) {
                 B = new int[countB+1];
-                int i = 0;
-                while (broken != nullptr) { 
-                    *B = *broken;
-                    B++;
-                    broken++;
-                    i++;
+                for (int i = 0; i < countB; i++) {
+                    B[i] = broken[i];
                 }
-                //*B=nullptr; zasho ne raboti, of, nevermind, spi mi se
             }
-
+            generateSeats();
         }
 
         Room(const Room& other){
@@ -32,26 +46,63 @@ class Room{
                 this->N=other.N;
                 this->M=other.M;
                 this->countB=other.countB;
-                int* broken=other.B;
-                if (broken != nullptr) {
-                    delete [] B;
-                    B = new int[other.countB+1];
-                    int i = 0;
-                    while (broken != nullptr) { 
-                        *B = *broken;
-                        B++;
-                        broken++;
-                        i++;
+                if (other.B != nullptr) {
+                    B = new int[countB+1];
+                    for (int i = 0; i < countB; i++) {
+                        B[i] = other.B[i];
                     }
                 }
             }
+            generateSeats();
         }
 
         Room& operator=(const Room& other) {
-            Room copy(other);
-            swap(copy);
-            return *this;
+            if(this!=&other){
+                Room copy(other);
+                swap(copy);
+                generateSeats();
             }
+            return *this;
+        }
+
+        void generateSeats(){//mnogo vajna func
+            delete [] seats;
+            seats=new Seat[N*M];
+            int helpCount=0;
+            for (size_t i = 0; i < N; i++)
+            {
+                for (size_t j = 0; j < M; j++)
+                {
+                    int index=i*M+j;
+                    if((B!=nullptr && helpCount<countB) && index==B[helpCount]){//tuka se nadqvam v B da sa posledovatelni indexi
+                        Seat s=Seat(index,'B',false);
+                        seats[index]=s;
+                        helpCount++;
+                    }
+                    else if(i%2==1 || j%2==1){
+                        Seat s=Seat(index,'N',false);
+                        seats[index]=s;
+                    }
+                    else{
+                        Seat s=Seat(index,'F',false);
+                        seats[index]=s;
+                    }
+                }
+            }         
+        }
+
+        void printSeats(){
+            std::cout<<"print the seatssss\n";
+            for (size_t i = 0; i < N; i++)
+            {
+                for (size_t j = 0; j < M; j++)
+                {
+                    std::cout<<seats[i*M+j].getType()<<" ";
+                }
+                std::cout<<std::endl;
+                
+            }
+        }
 
         void swap(Room& other) {
             std::swap(N, other.N);
@@ -60,29 +111,59 @@ class Room{
             std::swap(B, other.B);
         }
 
-
-        void printBrokenIndexes(){
-            if(B!=nullptr){
-                std::cout<<"The broken seats' positions are: ";
-            }
-            while(B!=nullptr){
-                std::cout<<*B<<" ";
-                B++;
-            }
+void printBrokenIndexes(){
+    if (B != nullptr) {
+        for (int i = 0; i < countB; i++) {
+            std::cout << B[i] << " ";
         }
+        std::cout << std::endl;
+    } 
+   else{
+        std::cout << "No broken seats!" << std::endl;
+   }
+}
 
-        void printRoomSeats(){
+
+        void printRoomSeats(){//room's type and condition
+            //std::cout<<"hohoho";
             for (size_t i = 0; i < N; i++)
             {
                 for (size_t j = 0; j < M; j++)
                 {
-                    std::cout<<(j+i*j-1)<<" ";
+                    int index=i*M+j;
+                    char seat=seats[index].getType();
+                    std::cout << seat << " ";
+                }
+                std::cout<<std::endl;
+            }
+            
+        }
+
+        
+void printRoomSeatsNulevo(){//eto kak shte se zapulnqt
+            //std::cout<<"hohoho";
+            for (size_t i = 0; i < N; i++)
+            {
+                for (size_t j = 0; j < M; j++)
+                {
+                    int index=i*M+j;
+                    char seat=seats[index].getType();
+                    if(seat=='F'){
+                        seat='O';
+                    }
+                    else if(seat=='N'){
+                        seat='F';
+                    }
+                    
+                    std::cout << seat << " ";
                 }
                 std::cout<<std::endl;
             }
             
         }
 };
+
+
 
 
 class Simulation{
@@ -117,14 +198,15 @@ class Simulation{
             }
 
             this->room=Room(N,M,count,b);
+            //this->room.printBrokenIndexes();
+            this->room.printRoomSeatsNulevo();//nulevo, zashtoto shte rabotia s drugite oznachenia,
+            // no po tozi nachin shte izglejda napulnena zalata
         }
-
-
-
 };
 
 void startSimulation(){
     Simulation sim;
+    std::cout<<std::endl;
 }
 
 int main(){
